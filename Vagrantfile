@@ -42,12 +42,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                       netmask: "255.255.255.0"
 
     server.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--memory", 256]
+      vb.customize ["modifyvm", :id, "--memory", 512]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
     end
 
     # Not persistent across reboots!
     server.vm.provision "shell", inline: "echo 1 > /proc/sys/net/ipv4/ip_forward"
+    server.vm.provision "shell", inline: "echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf"
 
     server.vm.provision "puppet" do |puppet|
       puppet.manifests_path = "puppet/manifests"
@@ -73,7 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                       netmask: "255.255.255.0"
 
     server.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--memory", 256]
+      vb.customize ["modifyvm", :id, "--memory", 512]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
     end
 
@@ -104,7 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                       netmask: "255.255.255.0"
 
     server.vm.provider "virtualbox" do |vb|
-      vb.customize ["modifyvm", :id, "--memory", 256]
+      vb.customize ["modifyvm", :id, "--memory", 512]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
     end
 

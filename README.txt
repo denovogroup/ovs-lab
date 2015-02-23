@@ -1,7 +1,11 @@
 Open vSwitch Lab
 ================
 
-This is a companion project to the Open vSwitch series of articles at
+This is Denovo's fork of relaxdiego's ovs-lab for developing an in band
+SDN implementation
+
+Much thanks to relaxdiego:
+https://github.com/relaxdiego/ovs-lab
 http://www.relaxdiego.com.
 
 
@@ -37,7 +41,7 @@ You just created two servers that can talk to each other over the "Internet!"
 |           |                   +------------+                   |           |
 +-----------+                                                    +-----------+
 
-The two servers are Ubuntu VMs with mininet and OVS 2.x installed while the
+The two servers are Ubuntu VMs with OVS 2.x installed while the
 "Internet" is really a VM with IP forwarding enabled. All networks above are
 implemented as VirtualBox internal networks which are not directly accessible
 from anywhere else including your local machine. However, you can SSH to any

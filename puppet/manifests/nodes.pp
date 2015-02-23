@@ -8,7 +8,26 @@ node basenode {
   # to install any package in other manifests
   Exec["apt_get_update"] -> Package<| |>
 
-  package { "unzip":
+  $base_packages = [
+                     "git",
+                     "autoconf",
+                     "automake1.10",
+                     "build-essential",
+                     "debhelper",
+                     "fakeroot",
+                     "libffi-dev",
+                     "libssl-dev",
+                     "libtool",
+                     "pkg-config",
+                     "python-all",
+                     "python-dev",
+                     "python-pip",
+                     "python-qt4",
+                     "python-zopeinterface",
+                     "python-twisted-conch"
+                   ]
+
+  package { $base_packages:
     ensure => installed,
   }
 
@@ -28,6 +47,19 @@ node basenode {
     returns => [0, 2],
     creates => "/vagrant/shared/ovs/openvswitch-common_2.3.0-1_amd64.deb",
   }
+
+  exec { "download_pox":
+    command => "/usr/bin/git clone https://github.com/denovogroup/pox.git /vagrant/shared/pox",
+    cwd     => "/root",
+    creates => "/vagrant/shared/pox",
+  }
+
+  exec { "download_twisted":
+    command => "/usr/bin/pip install twisted",
+    cwd     => "/root",
+    creates => "/usr/local/lib/python2.7/dist-packages/twisted",
+  }
+
 
   package { "ovs_common":
     name     =>  "openvswitch-common",
@@ -73,13 +105,6 @@ node servernode inherits basenode {
     require  => [
                   Package["ovs_python"],
                 ],
-  }
-
-  package { "mininet":
-    ensure => installed,
-    require => [
-                  Package["ovs_switch"],
-               ]
   }
 
 }

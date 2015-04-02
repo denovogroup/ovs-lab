@@ -18,6 +18,7 @@ Requirements
 
 3. The vagrant-vbguest plugin. Install with `vagrant plugin install vagrant-vbguest`
 
+4. Install ansible. Depending on OS, there are various options, but on OSX should be as easy as `pip install ansible`
 
 Installation
 ------------
@@ -28,25 +29,6 @@ Estimated time for the following steps including automated provisioning:
 1. Clone this repo and cd to it
 
 2. Run `vagrant up`
-
-
-Whoa! What Just Happened???
----------------------------
-
-You just created two servers that can talk to each other over the "Internet!"
-
-+-----------+                                                    +-----------+
-|           |192.168.1.10/24    +------------+    192.168.2.20/24|           |
-|  server1  |-------------------| "INTERNET" |-------------------|  server2  |
-|           |                   +------------+                   |           |
-+-----------+                                                    +-----------+
-
-The two servers are Ubuntu VMs with OVS 2.x installed while the
-"Internet" is really a VM with IP forwarding enabled. All networks above are
-implemented as VirtualBox internal networks which are not directly accessible
-from anywhere else including your local machine. However, you can SSH to any
-of the three VMs using `vagrant ssh`. For example: `vagrant ssh internet`, or
-`vagrant ssh server1` and then get to the internal networks from there.
 
 
 Stopping and starting the VMs

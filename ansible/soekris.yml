@@ -1,0 +1,39 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: update apt cache
+      apt: update_cache=yes
+    - name: install packages
+      apt: name={{ item }} state=present
+      with_items:
+        - git
+        - autoconf
+        - automake1.10
+        - build-essential
+        - debhelper
+        - fakeroot
+        - libffi-dev
+        - libssl-dev
+        - libtool
+        - pkg-config
+        - python-all
+        - python-dev
+        - python-pip
+        - python-qt4
+        - python-zopeinterface
+        - python-twisted-conch
+        - openvswitch-switch
+        - python-openvswitch
+
+    - name: install pox from github
+      git: repo=https://github.com/denovogroup/pox.git
+           dest=/vagrant/shared/pox
+           version=pilo
+    - name: install pox from github
+      git: repo=https://github.com/denovogroup/pox.git
+           dest=/vagrant/shared/pox
+           version=pilo
+
+    - name: install python twisted
+      pip: name=twisted

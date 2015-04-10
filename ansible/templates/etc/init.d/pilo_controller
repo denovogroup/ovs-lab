@@ -1,0 +1,110 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          pilo_controller
+# Required-Start:    $local_fs $remote_fs $network $syslog exim4 
+# Required-Stop:     $local_fs $remote_fs $network $syslog exim4
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: PILO Client Service
+# Description:       Start and stop PILO Client 
+### END INIT INFO
+
+# Do NOT "set -e"
+set -x
+
+ETH=eth0
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Pilo Controller startup"
+NAME=pilo_controller
+SCRIPTNAME=/etc/init.d/$NAME
+DAEMON_USER=root
+DAEMON_GROUP=root
+PIDFILE=/var/run/$NAME.pid
+LOGFILE=/var/log/$NAME.log
+
+# Read configuration variable file if it is present
+[ -r /vagrant/shared/src/etc/default/$NAME ] && . /vagrant/shared/src/etc/default/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the service
+#
+do_start()
+{
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+
+  brctl addbr br-int
+  ip link set dev br-int address $BR_MAC
+  ip link set br-int up
+  ip addr add $BR_IP dev br-int
+
+  for interface in $BR_INTERFACES
+  do
+    echo "$interface"
+    brctl addif br-int $interface
+  done
+
+  cd /vagrant/shared/pox 
+  ./pox.py log --file=$LOGFILE log.level --debug misc.pilo_controller --ack_timer=$ACK_TIMER --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --tmp_dst_mac=$TMP_DST_MAC & 
+  echo "$!" > $PIDFILE
+	
+  return 0
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+
+  read pid <$PIDFILE
+  kill -9 $pid
+  for interface in $BR_INTERFACES
+  do
+    echo "$interface"
+    brctl delif br-int $interface
+  done
+  ip link set br-int down
+  brctl delbr br-int
+	
+	return 0
+}
+
+case "$1" in
+	start)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
+		exit 3
+		;;
+esac
+
+:

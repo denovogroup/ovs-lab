@@ -1,0 +1,111 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          pilo_client
+# Required-Start:    $local_fs $remote_fs $network $syslog exim4 
+# Required-Stop:     $local_fs $remote_fs $network $syslog exim4
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: PILO Client Service
+# Description:       Start and stop PILO Client 
+### END INIT INFO
+
+# Do NOT "set -e"
+set -x
+
+ETH=eth0
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Pilo Client startup"
+NAME=pilo_client
+SCRIPTNAME=/etc/init.d/$NAME
+DAEMON_USER=root
+DAEMON_GROUP=root
+PIDFILE=/var/run/$NAME.pid
+LOGFILE=/var/log/$NAME.log
+
+# Read configuration variable file if it is present
+[ -r /vagrant/shared/src/etc/default/$NAME ] && . /vagrant/shared/src/etc/default/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the service
+#
+do_start()
+{
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+
+  ovs-vsctl add-br br-int
+  for interface in $OVS_INTERFACES
+  do
+    echo "$interface"
+    ovs-vsctl add-port br-int $interface
+  done
+
+  ip addr add $PILO_ADDR dev br-int
+  ovs-vsctl set bridge br-int other-config:hwaddr=$BR_MAC
+  ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
+
+
+  cd /vagrant/shared/pox 
+  ./pox.py log --file=$LOGFILE log.level --debug misc.pilo_client --udp_ip="$UDP_IP" --this_if="br-int" --udp_port="$UDP_PORT" --controller_mac="$CONTROLLER_MAC" & 
+  echo "$!" > $PIDFILE
+	
+  return 0
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+
+  read pid <$PIDFILE
+  kill -9 $pid
+  for interface in $OVS_INTERFACES
+  do
+    echo "$interface"
+    ovs-vsctl del-port br-int $interface
+  done
+  ip addr del $PILO_ADDR dev br-int
+  ovs-vsctl del-br br-int
+	
+	return 0
+}
+
+case "$1" in
+	start)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
+		exit 3
+		;;
+esac
+
+:

@@ -16,6 +16,7 @@
         - libffi-dev
         - libssl-dev
         - libtool
+        - bridge-utils
         - pkg-config
         - python-all
         - python-dev
@@ -37,3 +38,19 @@
 
     - name: install python twisted
       pip: name=twisted
+
+    - name: Copy PILO controller config
+      template: src=etc/default/pilo_controller.conf dest=/etc/default/pilo_controller.conf
+      when: pilo_controller and not pilo_client
+
+    - name: Copy PILO client config
+      template: src=etc/default/pilo_client.conf dest=/etc/default/pilo_client.conf
+      when: pilo_client and not pilo_controller
+
+    - name: Copy PILO controller init script
+      template: src=etc/init.d/pilo_controller dest=/etc/init.d/pilo_controller
+      when: pilo_controller and not pilo_client
+
+    - name: Copy PILO client init script
+      template: src=etc/init.d/pilo_client dest=/etc/init.d/pilo_client
+      when: pilo_client and not pilo_controller

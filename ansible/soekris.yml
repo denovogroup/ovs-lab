@@ -27,30 +27,26 @@
         - openvswitch-switch
         - python-openvswitch
 
-    - name: install pox from github
-      git: repo=https://github.com/denovogroup/pox.git
-           dest=/vagrant/shared/pox
-           version=pilo
-    - name: install pox from github
-      git: repo=https://github.com/denovogroup/pox.git
-           dest=/vagrant/shared/pox
-           version=pilo
+    # - name: install pox from github
+    #   git: repo=https://github.com/denovogroup/pox.git
+    #        dest=/vagrant/shared/pox
+    #        version=pilo
 
     - name: install python twisted
       pip: name=twisted
 
     - name: Copy PILO controller config
-      template: src=etc/default/pilo_controller.conf dest=/etc/default/pilo_controller.conf
+      template: src=templates/etc/default/pilo_controller.conf dest=/etc/default/pilo_controller.conf owner=root group=root mode=0644
       when: pilo_controller and not pilo_client
 
     - name: Copy PILO client config
-      template: src=etc/default/pilo_client.conf dest=/etc/default/pilo_client.conf
+      template: src=templates/etc/default/pilo_client.conf dest=/etc/default/pilo_client.conf owner=root group=root mode=0644
       when: pilo_client and not pilo_controller
 
     - name: Copy PILO controller init script
-      template: src=etc/init.d/pilo_controller dest=/etc/init.d/pilo_controller
+      template: src=templates/etc/init.d/pilo_controller dest=/etc/init.d/pilo_controller owner=root group=root mode=0744
       when: pilo_controller and not pilo_client
 
     - name: Copy PILO client init script
-      template: src=etc/init.d/pilo_client dest=/etc/init.d/pilo_client
+      template: src=templates/etc/init.d/pilo_client dest=/etc/init.d/pilo_client owner=root group=root mode=0744
       when: pilo_client and not pilo_controller

@@ -3,3 +3,4 @@
 shared/ovs.zip
 shared/ovs/*.*
 *.pyc
+shared/pox

@@ -27,10 +27,10 @@
         - openvswitch-switch
         - python-openvswitch
 
-    # - name: install pox from github
-    #   git: repo=https://github.com/denovogroup/pox.git
-    #        dest=/vagrant/shared/pox
-    #        version=pilo
+    - name: install pox from github
+      git: repo=https://github.com/denovogroup/pox.git
+           dest=/vagrant/shared/pox
+           version=pilo
 
     - name: install python twisted
       pip: name=twisted

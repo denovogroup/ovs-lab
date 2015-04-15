@@ -38,10 +38,38 @@ To suspend your VMs, run `vagrant suspend`. To shut them down, run
 `vagrant halt`.
 
 
-Viewing VM status
------------------
+Different VMs
+-----------------------------
+There are 4 different VMs, cory-soekris, icsi-soekris, denovo-soekris, and denovo-cpe-1.
+cory-soekris is the pilo_controller
+icsi-soekris and denovo-soekris are both pilo_clients
+denovo-cpe-1 just represents a simple network connected host
 
-`vagrant status`
+
+Starting pilo
+-----------------
+For now you have to ssh into each machine:
+`vagrant ssh cory-soekris` (from this folder)
+`vagrant ssh icsi-soekris`
+`vagrant ssh denovo-soekris`
+
+On each box, you should be able to run the following:
+`/etc/init.d/pilo_controller start'
+or
+`/etc/init.d/pilo_client start'
+
+
+Configuration
+-------------
+Most of the relevant configurations are at the top of the Vagrantfile. 
+This folder is mounted on each VM as /vagrant. 
+
+So, the pox folder will be at /vagrant/shared/pox
+
+
+Vagrant Commands
+----------------
+http://docs.vagrantup.com/v2/cli/index.html
 
 
 Troubleshooting

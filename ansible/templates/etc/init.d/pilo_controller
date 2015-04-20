@@ -61,7 +61,7 @@ do_start()
   done
 
   cd /vagrant/shared/pox 
-  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default proto.arp_responder misc.pilo_controller --ack_timer=$ACK_TIMER --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --tmp_dst_mac=$TMP_DST_MAC & 
+  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default proto.arp_responder misc.pilo_controller --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --tmp_dst_mac=$TMP_DST_MAC & 
   echo "$!" > $PIDFILE
 	
   return 0

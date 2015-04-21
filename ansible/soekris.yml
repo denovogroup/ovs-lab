@@ -35,6 +35,9 @@
     - name: install python twisted
       pip: name=twisted
 
+    - name: Set ip forwarding on
+      sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+
     - name: Copy PILO controller config
       template: src=templates/etc/default/pilo_controller.conf dest=/etc/default/pilo_controller.conf owner=root group=root mode=0644
       when: pilo_controller and not pilo_client

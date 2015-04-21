@@ -49,19 +49,21 @@ do_start()
   then
     return 1
   fi
-  brctl addbr br-int
-  ip link set dev br-int address $BR_MAC
-  ip link set br-int up
-  ip addr add $BR_IP dev br-int
 
-  for interface in $BR_INTERFACES
+  ovs-vsctl add-br br-int
+  for interface in $OVS_INTERFACES
   do
     echo "$interface"
-    # brctl addif br-int $interface
+    ovs-vsctl add-port br-int $interface
+    ip addr flush dev $interface
   done
 
+  ip addr add $BR_ADDR dev br-int
+  ovs-vsctl set bridge br-int other-config:hwaddr=$BR_MAC
+  ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
+
   cd /vagrant/shared/pox 
-  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default proto.arp_responder misc.pilo_controller --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --tmp_dst_mac=$TMP_DST_MAC & 
+  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default proto.arp_responder --eat_packets=False --$BR_IP=$BR_MAC misc.pilo_controller --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --client_macs=$CLIENT_MACS & 
   echo "$!" > $PIDFILE
 	
   return 0
@@ -84,13 +86,15 @@ do_stop()
     sleep 1
   done
 
-  for interface in $BR_INTERFACES
+  for interface in $OVS_INTERFACES
   do
     echo "$interface"
-    # brctl delif br-int $interface
+    ovs-vsctl del-port br-int $interface
+    ifdown $interface
+    ifup $interface
   done
-  ip link set br-int down
-  brctl delbr br-int
+  ip addr del $BR_ADDR dev br-int
+  ovs-vsctl del-br br-int
 	
 	return 0
 }

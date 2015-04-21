@@ -13,7 +13,7 @@ CORY_ICSI_IP_1       = "10.1.1.1"
 CORY_ICSI_IP_2       = "10.1.2.1"
 CORY_SOEKRIS_MGMT_IP = "192.168.101.1"
 CORY_PILO_MAC = "00:00:00:00:00:01"
-CORY_PILO_IP = "10.1.100.1/" + PILO_BITMASK
+CORY_PILO_IP = "10.1.100.1"
 
 ICSI_CORY_IP_1       = "10.1.1.2"
 ICSI_CORY_IP_2       = "10.1.2.2"
@@ -21,14 +21,14 @@ ICSI_DENOVO_IP_1     = "10.1.3.1"
 ICSI_DENOVO_IP_2     = "10.1.4.1"
 ICSI_SOEKRIS_MGMT_IP = "192.168.102.1"
 ICSI_PILO_MAC = "00:00:00:00:00:02"
-ICSI_PILO_IP = "10.1.100.2/" + PILO_BITMASK
+ICSI_PILO_IP = "10.1.100.2"
 
 DENOVO_ICSI_IP_1       = "10.1.3.2"
 DENOVO_ICSI_IP_2       = "10.1.4.2"
 DENOVO_BTS_IP_1        = "10.1.5.1"
 DENOVO_SOEKRIS_MGMT_IP = "192.168.103.1"
 DENOVO_PILO_MAC = "00:00:00:00:00:03"
-DENOVO_PILO_IP = "10.1.100.3/" + PILO_BITMASK
+DENOVO_PILO_IP = "10.1.100.3"
 
 DENOVO_CPE_1           = "10.1.5.2"
 DENOVO_CPE_1_MGMT_IP   = "192.168.104.1"
@@ -71,12 +71,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         pilo_client: false,
         pilo_controller: true,
         br_mac: CORY_PILO_MAC,
+        br_addr: CORY_PILO_IP + "/" + PILO_BITMASK,
         br_ip: CORY_PILO_IP,
         udp_ip: PILO_BROADCAST,
         br_interfaces: "eth1 eth2",
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
         udp_port: UDP_PORT,
-        tmp_dst_mac: "00:00:00:00:00:02" # TODO: ADD ALL CONTROLLING MACs
+        client_macs: ICSI_PILO_MAC + "," + DENOVO_PILO_MAC
       }
       # ansible.limit = 'all'
       ansible.verbose = 'vvvv'
@@ -133,7 +134,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
         br_mac: ICSI_PILO_MAC,
         udp_ip: PILO_BROADCAST,
-        pilo_addr: ICSI_PILO_IP,
+        pilo_addr: ICSI_PILO_IP + "/" + PILO_BITMASK,
+        pilo_ip: ICSI_PILO_IP,
         udp_port: UDP_PORT,
         controller_mac: CORY_PILO_MAC
       }
@@ -186,7 +188,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         br_mac: DENOVO_PILO_MAC,
         udp_ip: PILO_BROADCAST,
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
-        pilo_addr: DENOVO_PILO_IP,
+        pilo_addr: DENOVO_PILO_IP + "/" + PILO_BITMASK,
+        pilo_ip: DENOVO_PILO_IP,
         udp_port: UDP_PORT,
         controller_mac: CORY_PILO_MAC
       }

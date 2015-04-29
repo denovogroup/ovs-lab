@@ -63,7 +63,7 @@ do_start()
   ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
 
   cd /vagrant/shared/pox 
-  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default proto.arp_responder --eat_packets=False --$BR_IP=$BR_MAC misc.pilo_controller --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --client_macs=$CLIENT_MACS & 
+  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default messenger messenger.tcp_transport topology pilo.topology_service info.packet_dump proto.arp_responder --eat_packets=False --$BR_IP=$BR_MAC pilo.pilo_controller --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if="br-int" --client_macs=$CLIENT_MACS & 
   echo "$!" > $PIDFILE
 	
   return 0

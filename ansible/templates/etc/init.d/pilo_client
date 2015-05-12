@@ -33,6 +33,13 @@ LOGFILE=/var/log/$NAME.log
 # and status_of_proc is working.
 . /lib/lsb/init-functions
 
+get_pid() {
+  cat "$PIDFILE"
+}
+
+is_running() {
+  [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
+}
 #
 # Function that starts the service
 #
@@ -114,6 +121,28 @@ case "$1" in
 			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
 			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
 		esac
+		;;
+  restart)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			*) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+		;;
+
+  status)
+    if is_running; then
+      echo "Running"
+    else
+      echo "Stopped"
+      exit 1
+    fi
 		;;
 	*)
 		echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2

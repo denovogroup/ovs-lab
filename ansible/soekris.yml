@@ -53,3 +53,6 @@
     - name: Copy PILO client init script
       template: src=templates/etc/init.d/pilo_client dest=/etc/init.d/pilo_client owner=root group=root mode=0744
       when: pilo_client and not pilo_controller
+
+    - name: Copy root files
+      copy: src=templates/root/ dest=/root/ owner=root group=root 

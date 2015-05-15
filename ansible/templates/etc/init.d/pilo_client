@@ -22,11 +22,6 @@ DAEMON_GROUP=root
 PIDFILE=/var/run/$NAME.pid
 LOG_PATH=/var/log
 
-DAEMON="/usr/bin/python"
-DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOGFILE log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
-START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
-START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
-
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME.conf ] && . /etc/default/$NAME.conf
 
@@ -37,6 +32,10 @@ START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
 # and status_of_proc is working.
 . /lib/lsb/init-functions
+
+DAEMON="/usr/bin/python"
+DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOGFILE log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
+START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 
 get_pid() {
   cat "$PIDFILE"

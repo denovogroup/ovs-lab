@@ -20,7 +20,12 @@ SCRIPTNAME=/etc/init.d/$NAME
 DAEMON_USER=root
 DAEMON_GROUP=root
 PIDFILE=/var/run/$NAME.pid
-LOGFILE=/var/log/$NAME.log
+LOG_PATH=/var/log
+
+DAEMON="/usr/bin/python"
+DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOGFILE log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
+START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
+START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME.conf ] && . /etc/default/$NAME.conf
@@ -37,9 +42,6 @@ get_pid() {
   cat "$PIDFILE"
 }
 
-is_running() {
-  [ -f "$PIDFILE" ] && ps `get_pid` > /dev/null 2>&1
-}
 #
 # Function that starts the service
 #
@@ -68,9 +70,8 @@ do_start()
   ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
 
 
-  cd /vagrant/shared/pox 
-  ./pox.py log --file=$LOGFILE log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip="$UDP_IP" --this_if="br-int" --udp_port="$UDP_PORT" --controller_mac="$CONTROLLER_MAC" &
-  echo "$!" > $PIDFILE
+  start-stop-daemon $START_STOP_DAEMON_OPTIONS --start --make-pidfile --background --pidfile $PIDFILE --exec $DAEMON --test >> ${LOG_PATH}/${NAME}.out 2>> ${LOG_PATH}/${NAME}.err || return 1
+  start-stop-daemon $START_STOP_DAEMON_OPTIONS --start --make-pidfile --background --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_ARGS >> ${LOG_PATH}/${NAME}.out 2>> ${LOG_PATH}/${NAME}.err || return 2
 	
   return 0
 }
@@ -84,13 +85,9 @@ do_stop()
 	#   0 if daemon has been stopped
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
-
-  read PID <$PIDFILE
-  while kill -0 ${PID}; do
-    kill -9 $PID
-    echo "Killing pilo_client"
-    sleep 1
-  done
+  start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE
+  RETVAL="$?"
+  [ "$RETVAL" = 2 ] && return 2
 
   for interface in $OVS_INTERFACES
   do
@@ -102,7 +99,9 @@ do_stop()
   ip addr del $PILO_ADDR dev br-int
   ovs-vsctl del-br br-int
 	
-	return 0
+  # Many daemons don't delete their pidfiles when they exit.
+  rm -f $PIDFILE
+  return "$RETVAL"
 }
 
 case "$1" in
@@ -137,12 +136,7 @@ case "$1" in
 		;;
 
   status)
-    if is_running; then
-      echo "Running"
-    else
-      echo "Stopped"
-      exit 1
-    fi
+    status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
 		;;
 	*)
 		echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2

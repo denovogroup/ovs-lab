@@ -34,7 +34,7 @@ LOG_PATH=/var/log
 . /lib/lsb/init-functions
 
 DAEMON="/usr/bin/python"
-DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOGFILE log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
+DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
 START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 
 get_pid() {

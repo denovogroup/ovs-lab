@@ -4,6 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 PILO_NETMASK = "255.255.0.0"
+MGMT_NETMASK = "255.255.255.0"
 PILO_BITMASK = "16"
 UDP_PORT = 5005
 PILO_BROADCAST = "10.1.255.255"
@@ -58,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Management/Control network
     server.vm.network "private_network",
                       ip: CORY_SOEKRIS_MGMT_IP,
-                      netmask: PILO_NETMASK
+                      netmask: MGMT_NETMASK
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
@@ -119,7 +120,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Management/Control network
     server.vm.network "private_network",
                       ip: ICSI_SOEKRIS_MGMT_IP,
-                      netmask: PILO_NETMASK
+                      netmask: MGMT_NETMASK
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
@@ -173,7 +174,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Management/Control network
     server.vm.network "private_network",
                       ip: DENOVO_SOEKRIS_MGMT_IP,
-                      netmask: PILO_NETMASK
+                      netmask: MGMT_NETMASK
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
@@ -213,7 +214,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Management/Control network
     server.vm.network "private_network",
                       ip: DENOVO_CPE_1_MGMT_IP,
-                      netmask: PILO_NETMASK
+                      netmask: MGMT_NETMASK
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]

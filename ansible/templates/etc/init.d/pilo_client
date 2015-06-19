@@ -62,6 +62,8 @@ do_start()
     echo "$interface"
     ovs-vsctl add-port br-int $interface
     ip addr flush dev $interface
+    # We can use tc to simulate lossy links
+    #tc qdisc add dev $interface root netem delay 100ms 10ms 25% loss 1% 25% reorder 25% 50%
   done
 
   ip addr add $PILO_ADDR dev br-int
@@ -94,6 +96,8 @@ do_stop()
     ovs-vsctl del-port br-int $interface
     ifdown $interface
     ifup $interface
+    # This *should* reset tc rules?
+    # tc qdisc del dev $interface root netem
   done
   ip addr del $PILO_ADDR dev br-int
   ovs-vsctl del-br br-int

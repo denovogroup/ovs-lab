@@ -9,6 +9,7 @@ PILO_BITMASK = "16"
 UDP_PORT = 5005
 PILO_BROADCAST = "10.1.255.255"
 RETRANSMISSION_TIMEOUT = 3
+HEARTBEAT_TIMEOUT = 30
 
 CORY_ICSI_IP_1       = "10.1.1.1"
 CORY_ICSI_IP_2       = "10.1.2.1"
@@ -79,6 +80,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         udp_ip: PILO_BROADCAST,
         br_interfaces: "eth1 eth2",
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
+        heartbeat_timeout: HEARTBEAT_TIMEOUT,
         udp_port: UDP_PORT,
         client_macs: ICSI_PILO_MAC + "," + DENOVO_PILO_MAC
       }
@@ -135,6 +137,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         pilo_client: true,
         pilo_controller: false,
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
+        heartbeat_timeout: HEARTBEAT_TIMEOUT,
         br_mac: ICSI_PILO_MAC,
         udp_ip: PILO_BROADCAST,
         pilo_addr: ICSI_PILO_IP + "/" + PILO_BITMASK,
@@ -191,6 +194,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         br_mac: DENOVO_PILO_MAC,
         udp_ip: PILO_BROADCAST,
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
+        heartbeat_timeout: HEARTBEAT_TIMEOUT,
         pilo_addr: DENOVO_PILO_IP + "/" + PILO_BITMASK,
         pilo_ip: DENOVO_PILO_IP,
         udp_port: UDP_PORT,

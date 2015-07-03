@@ -185,7 +185,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     config.vm.provision :ansible do |ansible|
       ansible.extra_vars = {
-        ovs_interfaces: "eth1 eth2",
+        ovs_interfaces: "eth1 eth2 eth3",
         pilo_client: true,
         pilo_controller: false,
         br_mac: DENOVO_PILO_MAC,

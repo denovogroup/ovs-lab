@@ -14,7 +14,8 @@ HEARTBEAT_TIMEOUT = 30
 CORY_ICSI_IP_1       = "10.1.1.1"
 CORY_ICSI_IP_2       = "10.1.2.1"
 CORY_SOEKRIS_MGMT_IP = "10.101.1.2"
-CORY_PILO_MAC = "00:00:00:00:00:01"
+# 2nd bit in first byte signifies "locally administered" and not globally unique mac
+CORY_PILO_MAC = "02:00:00:00:00:01"
 CORY_PILO_IP = "10.1.100.1"
 
 ICSI_CORY_IP_1       = "10.1.1.2"
@@ -22,14 +23,16 @@ ICSI_CORY_IP_2       = "10.1.2.2"
 ICSI_DENOVO_IP_1     = "10.1.3.1"
 ICSI_DENOVO_IP_2     = "10.1.4.1"
 ICSI_SOEKRIS_MGMT_IP = "10.101.2.2"
-ICSI_PILO_MAC = "00:00:00:00:00:02"
+# 2nd bit in first byte signifies "locally administered" and not globally unique mac
+ICSI_PILO_MAC = "02:00:00:00:00:02"
 ICSI_PILO_IP = "10.1.100.2"
 
 DENOVO_ICSI_IP_1       = "10.1.3.2"
 DENOVO_ICSI_IP_2       = "10.1.4.2"
 DENOVO_BTS_IP_1        = "10.1.5.1"
 DENOVO_SOEKRIS_MGMT_IP = "10.101.3.2"
-DENOVO_PILO_MAC = "00:00:00:00:00:03"
+# 2nd bit in first byte signifies "locally administered" and not globally unique mac
+DENOVO_PILO_MAC = "02:00:00:00:00:03"
 DENOVO_PILO_IP = "10.1.100.3"
 
 DENOVO_CPE_1           = "10.1.5.2"
@@ -37,6 +40,10 @@ DENOVO_CPE_1_MGMT_IP   = "10.101.4.2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
+  # Should allow us to default login as root
+  config.ssh.username = 'root'
+  config.ssh.password = 'vagrant'
+  config.ssh.insert_key = 'true'
 
   # Cory Soekris - PILO SDN Controller
   config.vm.define "cory-soekris" do |server|
@@ -65,6 +72,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+      # Set network interfaces to adapter types that allow for proper bridging
+      vb.customize ['modifyvm', :id, '--nictype2', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+      vb.customize ['modifyvm', :id, '--nictype3', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+      # Cap cpu at 50%
+      vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
       # Can be used for debugging if Vagrant doesn't bring up interfaces properly
       # vb.gui = true
     end
@@ -72,7 +86,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision :ansible do |ansible|
       ansible.extra_vars = {
         ovs_interfaces: "eth1 eth2",
-        pilo_client: false,
         pilo_controller: true,
         br_mac: CORY_PILO_MAC,
         br_addr: CORY_PILO_IP + "/" + PILO_BITMASK,
@@ -129,13 +142,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+      # Set network interfaces to adapter types that allow for proper bridging
+      vb.customize ['modifyvm', :id, '--nictype2', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+      vb.customize ['modifyvm', :id, '--nictype3', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+      vb.customize ['modifyvm', :id, '--nictype4', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+      vb.customize ['modifyvm', :id, '--nictype5', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc5", "allow-all"]
+      # Cap cpu at 50%
+      vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+      # Can be used for debugging if Vagrant doesn't bring up interfaces properly
+      # vb.gui = true
     end
 
     config.vm.provision :ansible do |ansible|
       ansible.extra_vars = {
         ovs_interfaces: "eth1 eth2 eth3 eth4",
         pilo_client: true,
-        pilo_controller: false,
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
         heartbeat_timeout: HEARTBEAT_TIMEOUT,
         br_mac: ICSI_PILO_MAC,
@@ -183,14 +208,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
+      # Set network interfaces to adapter types that allow for proper bridging
+      vb.customize ['modifyvm', :id, '--nictype2', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+      vb.customize ['modifyvm', :id, '--nictype3', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+      # Cap cpu at 50%
+      vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+      # Can be used for debugging if Vagrant doesn't bring up interfaces properly
+      # vb.gui = true
     end
 
     config.vm.provision :ansible do |ansible|
       ansible.extra_vars = {
         ovs_interfaces: "eth1 eth2 eth3",
         pilo_client: true,
-        pilo_controller: false,
         br_mac: DENOVO_PILO_MAC,
         udp_ip: PILO_BROADCAST,
         retransmission_timeout: RETRANSMISSION_TIMEOUT,
@@ -211,7 +244,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server.vm.box = "ubuntu/trusty64"
     server.vm.hostname = "denovo-cpe-1"
 
-    # AF links
+    # BTS links
     server.vm.network "private_network",
                       virtualbox__intnet: "denovo_bts_1",
                       ip: DENOVO_CPE_1,
@@ -224,7 +257,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", 512]
+      # Set network interfaces to adapter types that allow for proper bridging
+      vb.customize ['modifyvm', :id, '--nictype2', '82543GC']
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+      # Cap cpu at 50%
+      vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+      # Can be used for debugging if Vagrant doesn't bring up interfaces properly
+      vb.gui = true
     end
 
     config.vm.provision :ansible do |ansible|

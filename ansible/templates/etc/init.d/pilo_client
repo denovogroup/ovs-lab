@@ -34,7 +34,7 @@ LOG_PATH=/var/log
 . /lib/lsb/init-functions
 
 DAEMON="/usr/bin/python"
-DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG --no-default info.packet_dump proto.arp_responder --eat_packets=False --$PILO_IP=$BR_MAC pilo.pilo_client --heartbeat_timeout=$HEARTBEAT_TIMEOUT --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
+DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG --no-default info.packet_dump pilo.pilo_client --heartbeat_timeout=$HEARTBEAT_TIMEOUT --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --this_if=br-int --udp_port=$UDP_PORT --controller_mac=$CONTROLLER_MAC"
 START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 
 get_pid() {
@@ -69,6 +69,7 @@ do_start()
   ip addr add $PILO_ADDR dev br-int
   ovs-vsctl set bridge br-int other-config:hwaddr=$BR_MAC
   ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
+  ovs-vsctl set controller br-int connection-mode=out-of-band
 
 
   start-stop-daemon $START_STOP_DAEMON_OPTIONS --start --make-pidfile --background --pidfile $PIDFILE --exec $DAEMON --test >> ${LOG_PATH}/${NAME}.out 2>> ${LOG_PATH}/${NAME}.err || return 1

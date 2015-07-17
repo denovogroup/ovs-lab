@@ -26,7 +26,7 @@ LOG_PATH=/var/log
 
 #DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG --no-default messenger messenger.tcp_transport topology pilo.topology_service info.packet_dump pilo.test_controller proto.arp_responder --eat_packets=False --$BR_IP=\"$BR_MAC\" pilo.pilo_controller --retransmission_timeout=\"$RETRANSMISSION_TIMEOUT\" --udp_ip=\"$UDP_IP\" --udp_port=\"$UDP_PORT\" --this_if=\"br-int\" --client_macs=\"$CLIENT_MACS\""
 DAEMON="/usr/bin/python"
-DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG info.packet_dump pilo.test_controller proto.arp_responder --eat_packets=False --$BR_IP=$BR_MAC pilo.pilo_controller --heartbeat_timeout=$HEARTBEAT_TIMEOUT --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if=br-int --client_macs=$CLIENT_MACS"
+DAEMON_ARGS="/vagrant/shared/pox/pox.py log --file=$LOG_PATH/${NAME}.log log.level --DEBUG info.packet_dump pilo.test_controller pilo.pilo_controller --heartbeat_timeout=$HEARTBEAT_TIMEOUT --retransmission_timeout=$RETRANSMISSION_TIMEOUT --udp_ip=$UDP_IP --udp_port=$UDP_PORT --this_if=br-int --client_macs=$CLIENT_MACS"
 START_STOP_DAEMON_OPTIONS="--verbose --chuid $DAEMON_USER:$DAEMON_GROUP"
 
 # Load the VERBOSE setting and other rcS variables
@@ -60,6 +60,7 @@ do_start()
   ip addr add $BR_ADDR dev br-int
   ovs-vsctl set bridge br-int other-config:hwaddr=$BR_MAC
   ovs-vsctl set-controller br-int tcp:127.0.0.1:6633
+  ovs-vsctl set controller br-int connection-mode=out-of-band
 
 
   start-stop-daemon $START_STOP_DAEMON_OPTIONS --start --make-pidfile --background --pidfile $PIDFILE --exec $DAEMON --test >> ${LOG_PATH}/${NAME}.out 2>> ${LOG_PATH}/${NAME}.err || return 1
